@@ -71,7 +71,7 @@ def main():
     db_path = r"G:\repogitory\deep-sengoku.net\vectors.db"
     
     # 検索クエリ（ここを変更してください）
-    query_text = "本能寺の変"  # 20文字程度の例
+    query_text = "織田信長"  # 20文字程度の例
     
     print(f"データベース: {db_path}")
     print()

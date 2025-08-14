@@ -39,6 +39,21 @@ class VectorEmbedder:
     def __init__(self, model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
     def embed_text(self, text: str) -> np.ndarray
     def embed_batch(self, texts: List[str]) -> List[np.ndarray]
+    def preprocess_japanese_text(self, text: str) -> str
+    def extract_named_entities(self, text: str) -> List[str]
+```
+
+### EnhancedSimilarityCalculator
+```python
+class EnhancedSimilarityCalculator:
+    def __init__(self, use_weighted_similarity: bool = True)
+    def cosine_similarity(self, vector1: np.ndarray, vector2: np.ndarray) -> float
+    def weighted_similarity(self, query_text: str, doc_text: str, 
+                          vector_similarity: float) -> float
+    def find_similar_documents_enhanced(self, query_text: str, query_vector: np.ndarray,
+                                      document_vectors: Dict[str, np.ndarray],
+                                      document_texts: Dict[str, str],
+                                      top_k: int = 5) -> List[Tuple[str, float]]
 ```
 
 ### DatabaseManager
@@ -121,3 +136,52 @@ CREATE INDEX idx_document_key ON document_vectors(document_key);
 - 中規模ファイル（10,000文字程度）
 - 大規模ファイル（30,000文字程度）
 - 日本語特有の文字（ひらがな、カタカナ、漢字、記号）を含むテストケース
+- 歴史人物関連性テストケース（織田信長→豊臣秀吉、徳川家康など）
+
+## ベクトル化とスコアリングの改善戦略
+
+### 問題分析
+現在のシステムで「織田信長」検索時に関連人物が高スコアにならない原因：
+
+1. **モデルの限界**: 使用中のparaphrase-multilingual-MiniLM-L12-v2は一般的な多言語モデルで、日本史の専門知識が不足
+2. **単純なコサイン類似度**: ベクトル間の角度のみを考慮し、歴史的文脈や固有名詞の重要度を考慮していない
+3. **テキスト前処理不足**: 日本語固有名詞の正規化や重要語句の強調が不十分
+
+### 改善アプローチ
+
+#### 1. マルチモデル戦略
+```python
+class MultiModelEmbedder:
+    def __init__(self):
+        self.general_model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+        self.japanese_model = SentenceTransformer('sonoisa/sentence-bert-base-ja-mean-tokens-v2')
+    
+    def embed_with_ensemble(self, text: str) -> np.ndarray:
+        # 複数モデルの結果を組み合わせ
+        pass
+```
+
+#### 2. 重み付き類似度計算
+```python
+def calculate_weighted_similarity(self, query: str, document: str, vector_sim: float) -> float:
+    # 固有名詞マッチングボーナス
+    named_entity_bonus = self.calculate_named_entity_overlap(query, document)
+    
+    # 歴史的関連性ボーナス
+    historical_bonus = self.calculate_historical_relationship_bonus(query, document)
+    
+    # 最終スコア = ベクトル類似度 + 重み付きボーナス
+    return vector_sim * 0.7 + named_entity_bonus * 0.2 + historical_bonus * 0.1
+```
+
+#### 3. 日本語テキスト前処理強化
+```python
+def preprocess_japanese_text(self, text: str) -> str:
+    # 歴史人物名の正規化
+    text = self.normalize_historical_names(text)
+    
+    # 重要語句の強調
+    text = self.emphasize_important_terms(text)
+    
+    return text
+```
