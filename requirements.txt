@@ -1,0 +1,18 @@
+# 日本語HTMLベクトル検索システムの依存関係
+# Dependencies for Japanese HTML Vector Search System
+
+# ベクトル埋め込み用ライブラリ
+sentence-transformers>=2.2.2
+
+# HTML解析用ライブラリ
+beautifulsoup4>=4.12.0
+
+# 数値計算ライブラリ
+numpy>=1.24.0
+
+# データベース（Python標準ライブラリのため明示的な記載は不要だが、参考として記載）
+# sqlite3 - Python標準ライブラリ
+
+# 追加の有用なライブラリ
+lxml>=4.9.0  # BeautifulSoupのパーサー高速化
+tqdm>=4.65.0  # プログレスバー表示
