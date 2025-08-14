@@ -214,7 +214,7 @@ python main.py batch --log-level DEBUG
 
 ## 要件
 
-- Python 3.8以上
+- Python 3.11以上
 - 必要なライブラリは requirements.txt を参照
 - 推奨: 8GB以上のRAM（大量のHTMLファイル処理時）
 
